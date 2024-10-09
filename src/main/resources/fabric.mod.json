@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "simple-water-gravity",
+	"version": "${version}",
+	"name": "Simple Water Gravity",
+	"description": "Water sources fall down when not supported by a solid block.",
+	"authors": [
+		"Estecka"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/simple-water-gravity",
+		"sources": "https://github.com/Estecka/mc-Simple-Water-Gravity",
+		"issues":  "https://github.com/Estecka/mc-Simple-Water-Gravity/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/simple-water-gravity/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+		]
+	},
+	"mixins": [
+		"simple-water-gravity.mixins.json"
+	],
+	"depends": {
+		"minecraft": "~1.21",
+		"fabricloader": ">=0.16.5",
+		"java": ">=21"
+	}
+}
