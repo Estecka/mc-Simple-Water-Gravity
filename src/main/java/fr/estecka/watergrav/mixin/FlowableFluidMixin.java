@@ -7,10 +7,10 @@ import net.minecraft.block.FluidDrainable;
 import net.minecraft.block.FluidFillable;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,17 +23,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 public class FlowableFluidMixin
 {
 
-	@Shadow private boolean receivesFlow(Direction face, BlockView world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState){ throw new AssertionError(); }
+	@Shadow static private boolean receivesFlow(Direction face, BlockView world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState){ throw new AssertionError(); }
 
-	@WrapOperation( method="onScheduledTick", at=@At(value="INVOKE", target="net/minecraft/fluid/FlowableFluid.tryFlow(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/FluidState;)V") )
-	private void TryApplyGravity(FlowableFluid fluid, World world, BlockPos topPos, FluidState topFluidState, Operation<Void> original) {
-		if (!TryApplyGravity(fluid, world, topPos, topFluidState))
-			original.call(fluid, world, topPos, topFluidState);
+	@WrapOperation( method="onScheduledTick", at=@At(value="INVOKE", target="net/minecraft/fluid/FlowableFluid.tryFlow(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/fluid/FluidState;)V") )
+	private void TryApplyGravity(FlowableFluid fluid, ServerWorld world, BlockPos topPos, BlockState topState, FluidState topFluidState, Operation<Void> original) {
+		if (!TryApplyGravity(fluid, world, topPos, topState, topFluidState))
+			original.call(fluid, world, topPos, topState, topFluidState);
 	}
 
 	@Unique
-	private boolean TryApplyGravity(FlowableFluid fluidType, World world, BlockPos topPos, FluidState topFluidState) {
-		BlockState topState = world.getBlockState(topPos);
+	private boolean TryApplyGravity(FlowableFluid fluidType, ServerWorld world, BlockPos topPos, BlockState topState, FluidState topFluidState) {
 		BlockPos bottomPos = topPos.down();
 		BlockState bottomState = world.getBlockState(bottomPos);
 		FluidState bottomFluid = bottomState.getFluidState();
@@ -42,7 +41,7 @@ public class FlowableFluidMixin
 		|| !(topState.getBlock() instanceof FluidDrainable topDrainable)
 		|| bottomFluid.isStill()
 		|| !(bottomFluid.getFluid().matchesType(fluidType) || bottomFluid.canBeReplacedWith(world, bottomPos, fluidType, Direction.DOWN))
-		|| !this.receivesFlow(Direction.DOWN, world, topPos, topState, bottomPos, bottomState) // Checks there is an open connection between the two blocks.
+		|| !receivesFlow(Direction.DOWN, world, topPos, topState, bottomPos, bottomState) // Checks there is an open connection between the two blocks.
 		){
 			return false;
 		}
