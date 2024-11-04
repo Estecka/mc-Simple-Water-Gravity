@@ -48,14 +48,14 @@ public class FlowableFluidMixin
 		}
 
 		if ((bottomState.isAir() || bottomState.getBlock() instanceof FluidBlock)
-		&& null != topDrainable.tryDrainFluid(null, world, topPos, topState)
+		&& null != topDrainable.tryDrainFluid(world, topPos, topState)
 		){
 			world.setBlockState(bottomPos, topFluidState.getBlockState(), Block.NOTIFY_ALL);
 			return true;
 		}
 		else if (bottomState.getBlock() instanceof FluidFillable bottomFillable
-		&& bottomFillable.canFillWithFluid(null, world, bottomPos, bottomState, fluidType)
-		&& null != topDrainable.tryDrainFluid(null, world, topPos, topState)
+		&& bottomFillable.canFillWithFluid(world, bottomPos, bottomState, fluidType)
+		&& null != topDrainable.tryDrainFluid(world, topPos, topState)
 		){
 			bottomFillable.tryFillWithFluid(world, bottomPos, bottomState, topFluidState);
 			return true;
